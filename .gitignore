@@ -1,1 +1,4 @@
 dev_diary.md
+.env
+node_modules
+package-lock.json

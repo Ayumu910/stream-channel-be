@@ -1,0 +1,105 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Account {
+  user_id             Int      @id @default(autoincrement()) @unique
+  mail_address        String   @db.VarChar(255)
+  password            String   @db.VarChar(255)
+  playlist            Playlist[]
+  streamer_category   StreamerCategory[]
+}
+
+model Playlist {
+  playlist_id               Int      @id @default(autoincrement()) @unique
+  playlist_title            String   @db.VarChar(255)
+  shared                    Boolean  @default(false)
+  user_id                   Int      @db.Integer
+  stream_playlist_relation  StreamPlaylistRelation[]
+  account                   Account  @relation(fields: [user_id], references: [user_id])
+}
+
+model StreamerCategory {
+  category_id                 Int      @id @default(autoincrement()) @unique
+  category_title              String   @db.VarChar(255)
+  shared                      Boolean  @default(false)
+  user_id                     Int      @db.Integer
+  streamer_category_relation  StreamerCategoryRelation[]
+  account                     Account  @relation(fields: [user_id], references: [user_id])
+}
+
+model Streamer {
+  streamer_id                 Int      @id @default(autoincrement()) @unique
+  name                        String   @db.VarChar(255)
+  url                         String   @db.VarChar(255)
+  platform                    String   @db.VarChar(50)
+  streamer_category_relation  StreamerCategoryRelation[]
+  stream                      Stream[]
+  stremer_comment             StreamerComment[]
+  streamer_analysis           StreamerAnalysis[]
+}
+
+model Stream {
+  stream_id                 Int      @id @default(autoincrement()) @unique
+  stream_title              String   @db.VarChar(255)
+  url                       String   @db.VarChar(255)
+  platform                  String   @db.VarChar(50)
+  good_rate                 Int      @default(0)
+  bad_rate                  Int      @default(0)
+  streamer_id               Int      @db.Integer
+  stream_playlist_relation  StreamPlaylistRelation[]
+  stream_comment            StreamComment[]
+  streamer                  Streamer @relation(fields: [streamer_id], references: [streamer_id])
+}
+
+model StreamerCategoryRelation {
+  id           Int                 @id @default(autoincrement()) @unique
+  category_id  Int                 @db.Integer
+  streamer_id  Int                 @db.Integer
+  category     StreamerCategory    @relation(fields: [category_id], references: [category_id])
+  streamer     Streamer            @relation(fields: [streamer_id], references: [streamer_id])
+}
+
+model StreamPlaylistRelation {
+  id           Int       @id @default(autoincrement()) @unique
+  playlist_id  Int       @db.Integer
+  stream_id    Int       @db.Integer
+  added_at     DateTime  @default(now())
+  playlist     Playlist  @relation(fields: [playlist_id], references: [playlist_id])
+  stream       Stream    @relation(fields: [stream_id], references: [stream_id])
+}
+
+model StreamerComment {
+  comment_id   Int      @id @default(autoincrement()) @unique
+  comment_text String   @db.Text
+  streamer_id  Int      @db.Integer
+  streamer     Streamer @relation(fields: [streamer_id], references: [streamer_id])
+}
+
+model StreamerAnalysis {
+  analysis_id              Int      @id @default(autoincrement()) @unique
+  users_age                Int      @db.Integer @default(0)
+  users_gender             String   @db.VarChar(20) @default("")
+  humor                    Int      @default(0)
+  gaming_skill             Int      @default(0)
+  appearance               Int      @default(0)
+  uniqueness               Int      @default(0)
+  collaboration_frequency  Int      @default(0)
+  streaming_frequency      Int      @default(0)
+  game_or_chat             Int      @default(0)
+  wholesomeness            Int      @default(0)
+  streamer_id              Int      @db.Integer
+  streamer                 Streamer @relation(fields: [streamer_id], references: [streamer_id])
+}
+
+model StreamComment {
+  comment_id   Int      @id @default(autoincrement()) @unique
+  comment_text String   @db.Text
+  stream_id    Int      @db.Integer
+  stream       Stream   @relation(fields: [stream_id], references: [stream_id])
+}
