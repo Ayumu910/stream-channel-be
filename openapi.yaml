@@ -6,6 +6,7 @@ paths:
   /accounts:
     post:
       summary: アカウント登録
+      security: []
       requestBody:
         required: true
         content:
@@ -32,11 +33,20 @@ paths:
                     description: JWT token for authentication
         '400':
           description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
         '500':
           description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
   /guest-login:
     post:
       summary: ゲストユーザーとして簡単にログイン
+      security: []
       responses:
         '200':
           description: Successful guest login
@@ -48,13 +58,16 @@ paths:
                   token:
                     type: string
                     description: JWT token for authentication
-        '401':
-          description: Unauthorized
         '500':
           description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
   /login:
     post:
       summary: メールアドレスとパスワードを使って認証
+      security: []
       requestBody:
         required: true
         content:
@@ -80,9 +93,17 @@ paths:
                     type: string
                     description: JWT token for authentication
         '401':
-          description: Unauthorized
+          description: Invalid credentials
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
         '500':
           description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
   /streams/{stream_id}:
     get:
       summary: 1つの配信情報を得る
@@ -821,6 +842,7 @@ components:
           thumbnail_image:
             type: string
             format: base64
+
       stream_detail:
         type: object
         properties:
@@ -889,6 +911,7 @@ components:
           thumbnail_image:
             type: string
             format: base64
+
       streamer_categories_rough:
           type: object
           properties:
@@ -903,6 +926,7 @@ components:
                   name:
                     type: string
                     description: カテゴリの名前
+
       streamer_categories_detail:
         type: object
         properties:
@@ -934,6 +958,7 @@ components:
                   type: string
                   format: base64
                   description: この配信者の直近の配信のサムネイル
+
       playlist_rough:
         type: object
         properties:
@@ -948,6 +973,7 @@ components:
                 name:
                   type: string
                   description: プレイリストの名前
+
       playlist_detail:
         type: object
         properties:
@@ -989,6 +1015,7 @@ components:
                   type: string
                   format: date-time
                   description: 配信がプレイリストに追加された日時
+
       ratings:
         type: object
         properties:
@@ -1024,6 +1051,7 @@ components:
             type: number
             description: 配信者のイメージが健全かどうか
             example: 4.1
+
       audience_demographics:
         type: object
         properties:
@@ -1075,3 +1103,18 @@ components:
             type: number
             description: 60代以上の女性の視聴者数
             example: 0
+
+      ErrorResponse:
+        type: object
+        properties:
+          error:
+            type: string
+
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+security:
+  - bearerAuth: []

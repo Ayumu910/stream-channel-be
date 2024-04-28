@@ -8,9 +8,10 @@ datasource db {
 }
 
 model Account {
-  user_id             Int      @id @default(autoincrement()) @unique
-  mail_address        String   @db.VarChar(255)
-  password            String   @db.VarChar(255)
+  user_id             String              @id @default(uuid()) @unique
+  email               String              @unique
+  password_hash       String
+  is_guest            Boolean             @default(false)
   playlist            Playlist[]
   streamer_category   StreamerCategory[]
 }
@@ -19,7 +20,7 @@ model Playlist {
   playlist_id               Int      @id @default(autoincrement()) @unique
   playlist_title            String   @db.VarChar(255)
   shared                    Boolean  @default(false)
-  user_id                   Int      @db.Integer
+  user_id                   String
   stream_playlist_relation  StreamPlaylistRelation[]
   account                   Account  @relation(fields: [user_id], references: [user_id])
 }
@@ -28,7 +29,7 @@ model StreamerCategory {
   category_id                 Int      @id @default(autoincrement()) @unique
   category_title              String   @db.VarChar(255)
   shared                      Boolean  @default(false)
-  user_id                     Int      @db.Integer
+  user_id                     String
   streamer_category_relation  StreamerCategoryRelation[]
   account                     Account  @relation(fields: [user_id], references: [user_id])
 }
