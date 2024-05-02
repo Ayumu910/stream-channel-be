@@ -34,7 +34,7 @@ export const createAccount = async (req: Request, res: Response) => {
 
     const token = jwt.sign({ userId: account.user_id }, process.env.JWT_SECRET as string, { expiresIn: '30m' });
 
-    res.json({ token });
+    res.status(200).json({ token });
   } catch (error) {
     console.error('Error creating account:', error);
     res.status(500).json({ error: 'Failed to create account' });
@@ -59,7 +59,7 @@ export const login = async (req: Request, res: Response) => {
 
     const token = jwt.sign({ userId: account.user_id }, process.env.JWT_SECRET as string, { expiresIn: '30m' } );
 
-    res.json({ token });
+    res.status(200).json({ token });
   } catch (error) {
     console.error('Error logging in:', error);
     res.status(500).json({ error: 'Failed to log in' });
@@ -78,7 +78,7 @@ export const guestLogin = async (req: Request, res: Response) => {
 
     const token = jwt.sign({ userId: guestAccount.user_id }, process.env.JWT_SECRET as string, { expiresIn: '30m' } );
 
-    res.json({ token });
+    res.status(200).json({ token });
   } catch (error) {
     console.error('Error creating guest account:', error);
     res.status(500).json({ error: 'Failed to create guest account' });

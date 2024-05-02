@@ -40,6 +40,7 @@ describe('Auth Controller', () => {
         expect(createdAccount).not.toBeNull();
         expect(createdAccount?.email).toBe(email);
         expect(await bcrypt.compare(password, createdAccount?.password_hash as string)).toBe(true);
+        expect(res.status).toHaveBeenCalledWith(200);
         expect(res.json).toHaveBeenCalledWith({ token: expect.any(String) });
     });
 
@@ -90,6 +91,7 @@ describe('Auth Controller', () => {
 
         await login(req, res);
 
+        expect(res.status).toHaveBeenCalledWith(200);
         expect(res.json).toHaveBeenCalledWith({ token: expect.any(String) });
     });
 
@@ -136,6 +138,7 @@ describe('Auth Controller', () => {
         });
         expect(guestAccount).not.toBeNull();
         expect(guestAccount?.is_guest).toBe(true);
+        expect(res.status).toHaveBeenCalledWith(200);
         expect(res.json).toHaveBeenCalledWith({ token: expect.any(String) });
     });
   });
