@@ -882,11 +882,11 @@ components:
           rating:
             properties:
               good:
-                type: boolean
-                example: true
+                type: number
+                example: 112
               bad:
-                type: boolean
-                example: false
+                type: number
+                example: 23
           tags:
             type: array
             items:
@@ -910,7 +910,9 @@ components:
                   description: コメント本文
           thumbnail_image:
             type: string
-            format: base64
+            format: uri
+            example: "https://static-cdn.jtvnw.net/cf_vods/some-id/some-id//thumb/thumb0-640x480.jpg"
+            description: 640 x 480
 
       streamer_categories_rough:
           type: object

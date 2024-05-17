@@ -3,6 +3,8 @@ import bodyParser from 'body-parser';
 import cors from 'cors';
 import { PrismaClient } from '@prisma/client';
 import authRoutes from './routes/auth';
+import streamsRoutes from './routes/streams';
+
 
 const app = express();
 const prisma = new PrismaClient();
@@ -13,6 +15,7 @@ app.use(cors());
 
 // ルーティングの設定
 app.use('/api', authRoutes);
+app.use('/api', streamsRoutes);
 
 // サーバーの起動
 const port = process.env.PORT || 3000;
