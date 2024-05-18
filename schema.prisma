@@ -35,7 +35,7 @@ model StreamerCategory {
 }
 
 model Streamer {
-  streamer_id                 Int      @id @default(autoincrement()) @unique
+  streamer_id                 String   @id @db.VarChar(255)  @unique
   name                        String   @db.VarChar(255)
   url                         String   @db.VarChar(255)
   platform                    String   @db.VarChar(50)
@@ -46,13 +46,13 @@ model Streamer {
 }
 
 model Stream {
-  stream_id                 Int      @id @default(autoincrement()) @unique
+  stream_id                 String   @id @db.VarChar(255)  @unique
   stream_title              String   @db.VarChar(255)
   url                       String   @db.VarChar(255)
   platform                  String   @db.VarChar(50)
   good_rate                 Int      @default(0)
   bad_rate                  Int      @default(0)
-  streamer_id               Int      @db.Integer
+  streamer_id               String   @db.VarChar(255)
   stream_playlist_relation  StreamPlaylistRelation[]
   stream_comment            StreamComment[]
   streamer                  Streamer @relation(fields: [streamer_id], references: [streamer_id])
@@ -61,7 +61,7 @@ model Stream {
 model StreamerCategoryRelation {
   id           Int                 @id @default(autoincrement()) @unique
   category_id  Int                 @db.Integer
-  streamer_id  Int                 @db.Integer
+  streamer_id  String              @db.VarChar(255)
   category     StreamerCategory    @relation(fields: [category_id], references: [category_id])
   streamer     Streamer            @relation(fields: [streamer_id], references: [streamer_id])
 }
@@ -69,7 +69,7 @@ model StreamerCategoryRelation {
 model StreamPlaylistRelation {
   id           Int       @id @default(autoincrement()) @unique
   playlist_id  Int       @db.Integer
-  stream_id    Int       @db.Integer
+  stream_id    String              @db.VarChar(255)
   added_at     DateTime  @default(now())
   playlist     Playlist  @relation(fields: [playlist_id], references: [playlist_id])
   stream       Stream    @relation(fields: [stream_id], references: [stream_id])
@@ -78,7 +78,7 @@ model StreamPlaylistRelation {
 model StreamerComment {
   comment_id   Int      @id @default(autoincrement()) @unique
   comment_text String   @db.Text
-  streamer_id  Int      @db.Integer
+  streamer_id  String   @db.VarChar(255)
   streamer     Streamer @relation(fields: [streamer_id], references: [streamer_id])
 }
 
@@ -94,13 +94,13 @@ model StreamerAnalysis {
   streaming_frequency      Int      @default(0)
   game_or_chat             Int      @default(0)
   wholesomeness            Int      @default(0)
-  streamer_id              Int      @db.Integer
+  streamer_id              String   @db.VarChar(255)
   streamer                 Streamer @relation(fields: [streamer_id], references: [streamer_id])
 }
 
 model StreamComment {
   comment_id   Int      @id @default(autoincrement()) @unique
   comment_text String   @db.Text
-  stream_id    Int      @db.Integer
+  stream_id    String   @db.VarChar(255)
   stream       Stream   @relation(fields: [stream_id], references: [stream_id])
 }
