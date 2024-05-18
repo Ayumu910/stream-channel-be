@@ -166,6 +166,9 @@ paths:
                     bad:
                       type: boolean
                       example: false
+                    platforms:
+                     type: string
+                     example: "youtube"
       responses:
         '200':
           description: 評価が成功しました
