@@ -193,9 +193,12 @@ paths:
             schema:
               type: object
               properties:
-                comment:
+                comment_text:
                   type: string
                   description: 配信に付けるコメント
+                platforms:
+                  type: string
+                  example: "youtube"
       responses:
         '201':
           description: コメントが追加されました

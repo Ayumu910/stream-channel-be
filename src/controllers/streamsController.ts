@@ -187,3 +187,113 @@ export const postStreamRating = async (req: Request, res: Response) => {
     res.status(500).json({ error: 'Internal server error', message: 'An error occurred while adding the stream rating.' });
   }
 };
+
+export const postStreamComment = async (req: Request, res: Response) => {
+  const { stream_id } = req.params;
+  const { comment_text, platforms } = req.body;
+
+  try {
+    // 配信情報を取得
+    let stream = await prisma.stream.findUnique({
+      where: {
+        stream_id: stream_id,
+      },
+      include: {
+        streamer: true,
+      },
+    });
+
+    if (!stream) {
+      // 配信情報が存在しない場合、新しく取得
+      let streamData;
+      if (platforms === 'youtube') {
+        const response = await fetch(`https://www.googleapis.com/youtube/v3/videos?id=${stream_id}&key=${process.env.YOUTUBE_API_KEY}&part=snippet,statistics`);
+        const data = await response.json();
+
+        if (data.error) {
+          console.error('YouTube API error:', data.error);
+          return res.status(500).json({ error: 'YouTube API error', message: 'An error occurred while fetching stream data from YouTube API.' });
+        }
+
+        streamData = data.items[0];
+      } else if (platforms === 'twitch') {
+        const headers = new Headers();
+        headers.append('Client-ID', process.env.TWITCH_CLIENT_ID!);
+        headers.append('Authorization', `Bearer ${process.env.TWITCH_ACCESS_TOKEN}`);
+
+        const response = await fetch(`https://api.twitch.tv/helix/videos?id=${stream_id}`, { headers: headers });
+        const data = await response.json();
+
+        if (data.error) {
+          console.error('Twitch API error:', data.error);
+          return res.status(500).json({ error: 'Twitch API error', message: 'An error occurred while fetching stream data from Twitch API.' });
+        }
+
+        streamData = data.data[0];
+      } else {
+        return res.status(400).json({ error: 'Invalid platform', message: 'The specified platform is not supported.' });
+      }
+
+      if (!streamData) {
+        console.log("streamData is nothing", streamData);
+        return res.status(404).json({ error: 'Stream not found', message: `The stream with ID '${stream_id}' was not found.` });
+      }
+
+      // 配信者情報を取得
+      let streamer = await prisma.streamer.findUnique({
+        where: {
+          streamer_id: platforms === 'youtube' ? streamData.snippet.channelId : streamData.user_id,
+        },
+      });
+
+      // 配信者情報が存在しない場合、新しく作成
+      if (!streamer) {
+        streamer = await prisma.streamer.create({
+          data: {
+            streamer_id: platforms === 'youtube' ? streamData.snippet.channelId : streamData.user_id,
+            name: platforms === 'youtube' ? streamData.snippet.channelTitle : streamData.user_name,
+            url: platforms === 'youtube' ? `https://www.youtube.com/channel/${streamData.snippet.channelId}` : `https://www.twitch.tv/${streamData.user_login}`,
+            platform: platforms,
+          },
+        });
+      }
+
+      // 配信情報が存在しない場合、fetch() した内容をもとに新たに作成
+      stream = await prisma.stream.create({
+        include: {
+          streamer: true,
+        },
+        data: {
+          stream_id: stream_id,
+          stream_title: platforms === 'youtube' ? streamData.snippet.title : streamData.title,
+          url: platforms === 'youtube' ? `https://www.youtube.com/watch?v=${streamData.id}` : `https://www.twitch.tv/videos/${streamData.id}`,
+          platform: platforms,
+          good_rate: 0,
+          bad_rate: 0,
+          streamer: {
+            connect: {
+              streamer_id: streamer.streamer_id,
+            },
+          },
+        },
+      });
+    }
+
+    // 配信のコメントを登録
+    const comment = await prisma.streamComment.create({
+      data: {
+        comment_text: comment_text,
+        stream: {
+          connect: {
+            stream_id: stream_id,
+          },
+        },
+      },
+    });
+
+    res.status(201).json({ message: 'Comment added successfully', comment: comment });
+  } catch (error) {
+    console.error('Error adding stream comment:', error);
+    res.status(500).json({ error: 'Internal server error', message: 'An error occurred while adding the stream comment.' });
+  }
+};
