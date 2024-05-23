@@ -36,3 +36,57 @@ export async function getTwitchStreamDataOnly(streamId: string) {
   const data = await response.json();
   return data.data[0];
 }
+
+export async function getTwitchStreamerDetail(streamerId: string) {
+  const headers = new Headers();
+  headers.append('Client-ID', process.env.TWITCH_CLIENT_ID!);
+  headers.append('Authorization', `Bearer ${process.env.TWITCH_ACCESS_TOKEN}`);
+
+  //配信者のライブ配信一覧の取得
+  const response = await fetch(`https://api.twitch.tv/helix/videos?user_id=${streamerId}&first=12`, {
+    headers: headers
+  });
+  const data = await response.json();
+
+  if (data.error) {
+    throw new Error('Twitch API error: ' + data.error.message);
+  }
+
+  //配信者情報の取得
+  const streamerResponse = await fetch(`https://api.twitch.tv/helix/users?id=${streamerId}`, {
+    headers: headers
+  });
+  const streamerData = await streamerResponse.json();
+
+  return {
+    id: streamerId,
+    name: streamerData.data[0].display_name,
+    login: streamerData.data[0].login,
+    streams: data.data,
+    streamerIconUrl: streamerData.data[0].profile_image_url
+  };
+}
+
+export async function getTwitchStreamerDataOnly(streamerId: string) {
+  const headers = new Headers();
+  headers.append('Client-ID', process.env.TWITCH_CLIENT_ID!);
+  headers.append('Authorization', `Bearer ${process.env.TWITCH_ACCESS_TOKEN}`);
+
+  const response = await fetch(`https://api.twitch.tv/helix/users?id=${streamerId}`, {
+    headers: headers
+  });
+  const data = await response.json();
+
+  if (data.error) {
+    throw new Error('Twitch API error: ' + data.error.message);
+  }
+
+  const streamerData = data.data[0];
+
+  return {
+    streamer_id: streamerId,
+    name: streamerData.display_name,
+    url: `https://www.twitch.tv/${streamerData.login}`,
+    platform: 'twitch'
+  };
+}
