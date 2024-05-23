@@ -471,6 +471,12 @@ paths:
           required: true
           schema:
             type: string
+        - in: query
+          name: platform
+          description: 配信者のプラットフォーム
+          required: true
+          schema:
+            type: string
       responses:
           '200':
             description: 配信者情報の取得に成功しました
@@ -491,9 +497,6 @@ paths:
                     platform:
                       type: string
                       description: 配信プラットフォーム名
-                    followed:
-                      type: boolean
-                      description: 配信者を自分のカテゴリに追加しているか
                     streams:
                       $ref : '#/components/schemas/stream_rough'
                     streamer_icon:
@@ -549,9 +552,12 @@ paths:
             schema:
               type: object
               properties:
-                text:
+                comment_text:
                   type: string
                   description: コメントの本文
+                platform:
+                  type: string
+                  description: 配信者のプラットフォーム
       responses:
         '201':
           description: コメントが正常に追加されました
@@ -818,6 +824,7 @@ paths:
           description: 指定されたプレイリストが見つかりませんでした
         '500':
           description: サーバーエラー
+
 components:
   schemas:
       stream_rough:
@@ -835,12 +842,6 @@ components:
             type: string
             example: "34002"
             description: Number of views
-          tags:
-            type: array
-            items:
-              type: string
-              example: ["tag1", "tag3"]
-            description: Tags associated with the stream
           platform:
             type: string
             example: "YouTube"

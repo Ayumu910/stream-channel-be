@@ -4,6 +4,7 @@ import cors from 'cors';
 import { PrismaClient } from '@prisma/client';
 import authRoutes from './routes/auth';
 import streamsRoutes from './routes/streams';
+import streamersRoutes from './routes/streamers'
 
 
 const app = express();
@@ -16,6 +17,7 @@ app.use(cors());
 // ルーティングの設定
 app.use('/api', authRoutes);
 app.use('/api', streamsRoutes);
+app.use('/api', streamersRoutes);
 
 // サーバーの起動
 const port = process.env.PORT || 3000;
