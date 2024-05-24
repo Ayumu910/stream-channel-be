@@ -600,12 +600,6 @@ paths:
                     $ref : '#/components/schemas/ratings'
                   audience_demographics:
                     $ref : '#/components/schemas/audience_demographics'
-                  streamer_attributes:
-                    type: array
-                    items:
-                      type: string
-                      description: List of attributes associated with the streamer
-                      example: ["ホラーゲーム", "カラオケ", "APEX"]
     post:
       summary: 配信者の分析データを投稿する
       parameters:

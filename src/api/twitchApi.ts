@@ -90,3 +90,23 @@ export async function getTwitchStreamerDataOnly(streamerId: string) {
     platform: 'twitch'
   };
 }
+
+export async function getTwitchStreamerBasicInfo(streamerId: string) {
+  const headers = new Headers();
+  headers.append('Client-ID', process.env.TWITCH_CLIENT_ID!);
+  headers.append('Authorization', `Bearer ${process.env.TWITCH_ACCESS_TOKEN}`);
+
+  const response = await fetch(`https://api.twitch.tv/helix/channels/followers?broadcaster_id=${streamerId}`, {
+    headers: headers
+  });
+  const data = await response.json();
+
+  if (data.error) {
+    throw new Error('Twitch API error: ' + data.error.message);
+  }
+
+  return {
+    total_views: 'Total views are not available on twitch',
+    subscribers: data.total
+  };
+}

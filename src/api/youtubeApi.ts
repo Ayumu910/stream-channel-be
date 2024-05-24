@@ -91,3 +91,21 @@ export async function getYoutubeStreamerDataOnly(streamerId: string) {
     platform: 'youtube'
   };
 }
+
+export async function getYoutubeStreamerBasicInfo(streamerId: string) {
+  const response = await fetch(
+    `https://www.googleapis.com/youtube/v3/channels?part=statistics&id=${streamerId}&key=${process.env.YOUTUBE_API_KEY}`
+  );
+  const data = await response.json();
+
+  if (data.error) {
+    throw new Error('YouTube API error: ' + data.error.message);
+  }
+
+  const streamerData = data.items[0];
+
+  return {
+    total_views: streamerData.statistics.viewCount,
+    subscribers: streamerData.statistics.subscriberCount
+  };
+}
