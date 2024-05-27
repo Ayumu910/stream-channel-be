@@ -1,4 +1,4 @@
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient, StreamerCategory } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
@@ -49,5 +49,28 @@ export async function findStreamersByCategoryId(categoryId: number) {
         },
       },
     },
+  });
+}
+
+export async function deleteStreamerCategory(categoryId: number) {
+  await prisma.streamerCategoryRelation.deleteMany({
+    where: {
+      category_id: categoryId,
+    },
+  });
+
+  await prisma.streamerCategory.delete({
+    where: {
+      category_id: categoryId,
+    },
+  });
+}
+
+export async function updateStreamerCategory(categoryId: number, data: Partial<StreamerCategory>) {
+  return await prisma.streamerCategory.update({
+    where: {
+      category_id: categoryId,
+    },
+    data,
   });
 }
