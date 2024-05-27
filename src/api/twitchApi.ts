@@ -110,3 +110,26 @@ export async function getTwitchStreamerBasicInfo(streamerId: string) {
     subscribers: data.total
   };
 }
+
+export async function getTwitchStreamerIdFromUrl(url: string): Promise<string> {
+  const match = url.match(/twitch\.tv\/([^/]+)/);
+  if (!match) {
+    throw new Error('Invalid Twitch streamer URL');
+  }
+  const streamerName = match[1];
+
+  const headers = new Headers();
+  headers.append('Client-ID', process.env.TWITCH_CLIENT_ID!);
+  headers.append('Authorization', `Bearer ${process.env.TWITCH_ACCESS_TOKEN}`);
+
+  const response = await fetch(`https://api.twitch.tv/helix/users?login=${streamerName}`, {
+    headers: headers,
+  });
+  const data = await response.json();
+
+  if (data.data.length === 0) {
+    throw new Error('Streamer not found on Twitch');
+  }
+
+  return data.data[0].id;
+}
