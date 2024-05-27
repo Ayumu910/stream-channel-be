@@ -300,7 +300,7 @@ paths:
             schema:
               type: object
               properties:
-                title:
+                category_title:
                   type: string
                   description: 新しいカテゴリのタイトル
       responses:
@@ -311,10 +311,10 @@ paths:
               schema:
                 type: object
                 properties:
-                  id:
+                  category_id:
                     type: string
                     description: 作成されたカテゴリのID
-                  title:
+                  category_title:
                     type: string
                     description: 作成されたカテゴリのタイトル
         '400':
@@ -398,7 +398,7 @@ paths:
               schema:
                 type: object
                 properties:
-                  id:
+                  streamer_id:
                     type: string
                     description: 追加された配信者のID
                   category_id:
@@ -923,10 +923,10 @@ components:
               items:
                 type: object
                 properties:
-                  id:
+                  category_id:
                     type: string
                     description: カテゴリのID
-                  name:
+                  category_name:
                     type: string
                     description: カテゴリの名前
 
