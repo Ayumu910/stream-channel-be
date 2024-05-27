@@ -109,3 +109,45 @@ export async function getYoutubeStreamerBasicInfo(streamerId: string) {
     subscribers: streamerData.statistics.subscriberCount
   };
 }
+
+export async function getYoutubeStreamerIdFromUrl(url: string): Promise<string> {
+  // https://www.youtube.com/channel/{channelId} という形式の場合、id をそのまま返す
+  let match = url.match(/youtube\.com\/channel\/([^/]+)/);
+  if (match) {
+    return match[1];
+  }
+
+  // https://www.youtube.com/channel/{handleName} という形式に対応
+  match = url.match(/youtube\.com\/@([^/]+)/);
+  if (match) {
+    const streamerName = match[1];
+    const response = await fetch(
+      `https://www.googleapis.com/youtube/v3/channels?part=id&forHandle=${streamerName}&key=${process.env.YOUTUBE_API_KEY}`
+    );
+    const data = await response.json();
+
+    if (data.pageInfo.totalResults === 0) {
+      throw new Error('Streamer not found on YouTube');
+    }
+
+    return data.items[0].id;
+  }
+
+  // https://www.youtube.com/c/{channelName} という形式に対応
+  match = url.match(/youtube\.com\/c\/([^/]+)/);
+  if (match) {
+    const streamerName = match[1];
+    const response = await fetch(
+      `https://www.googleapis.com/youtube/v3/channels?part=id&forHandle=${streamerName}&key=${process.env.YOUTUBE_API_KEY}`
+    );
+    const data = await response.json();
+
+    if (data.pageInfo.totalResults === 0) {
+      throw new Error('Streamer not found on YouTube');
+    }
+
+    return data.items[0].id;
+  }
+
+  throw new Error('Invalid YouTube streamer URL');
+}

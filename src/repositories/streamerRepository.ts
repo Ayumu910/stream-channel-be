@@ -10,6 +10,14 @@ export async function findStreamerById(streamerId: string) {
   });
 }
 
+export async function findStreamerByUrl(streamerUrl: string) {
+  return await prisma.streamer.findFirst({
+    where: {
+      url: streamerUrl,
+    },
+  });
+}
+
 export async function createStreamer(streamerData: any) {
   return await prisma.streamer.create({
     data: {
