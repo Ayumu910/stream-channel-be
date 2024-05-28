@@ -74,3 +74,12 @@ export async function updateStreamerCategory(categoryId: number, data: Partial<S
     data,
   });
 }
+
+export async function deleteStreamerFromCategoryRelation(categoryId: number, streamerId: string) {
+  await prisma.streamerCategoryRelation.deleteMany({
+    where: {
+      category_id: categoryId,
+      streamer_id: streamerId,
+    },
+  });
+}

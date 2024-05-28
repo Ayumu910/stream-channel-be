@@ -1,5 +1,8 @@
 import express from 'express';
-import { createCategoryHandler, getAllCategoriesHandler, addStreamerToCategoryHandler, getStreamersByCategoryHandler, deleteCategoryHandler,shareCategoryHandler } from '../controllers/categoriesController';
+import { createCategoryHandler, getAllCategoriesHandler, addStreamerToCategoryHandler,
+      getStreamersByCategoryHandler, deleteCategoryHandler,shareCategoryHandler,
+      removeStreamerFromCategoryHandler } from '../controllers/categoriesController';
+
 import { authenticateToken } from '../middlewares/authMiddleware';
 
 const router = express.Router();
@@ -10,5 +13,6 @@ router.post('/categories/:category_id', authenticateToken, addStreamerToCategory
 router.get('/categories/:category_id', authenticateToken, getStreamersByCategoryHandler);
 router.delete('/categories/:category_id', authenticateToken, deleteCategoryHandler);
 router.put('/categories/:category_id/share', authenticateToken, shareCategoryHandler);
+router.delete('/categories/:category_id/streamers/:streamer_id', authenticateToken, removeStreamerFromCategoryHandler);
 
 export default router;
