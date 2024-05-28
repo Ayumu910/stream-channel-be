@@ -1,4 +1,7 @@
-import { createStreamerCategory, findAllStreamerCategoriesByUserId, addStreamerToCategoryRelation, findStreamerCategoryById, findStreamersByCategoryId, deleteStreamerCategory, updateStreamerCategory } from '../repositories/categoryRepository';
+import { createStreamerCategory, findAllStreamerCategoriesByUserId, addStreamerToCategoryRelation,
+        findStreamerCategoryById, findStreamersByCategoryId, deleteStreamerCategory, updateStreamerCategory,
+        deleteStreamerFromCategoryRelation } from '../repositories/categoryRepository';
+
 import { findStreamerById, createStreamer } from '../repositories/streamerRepository';
 import { getYoutubeStreamerDataOnly, getYoutubeStreamerDetail, getYoutubeStreamerIdFromUrl } from '../api/youtubeApi';
 import { getTwitchStreamerDataOnly, getTwitchStreamerDetail, getTwitchStreamerIdFromUrl } from '../api/twitchApi';
@@ -120,4 +123,14 @@ export async function shareCategory(categoryId: string, userId: string, share: b
   }
 
   await updateStreamerCategory(parseInt(categoryId), { shared: share });
+}
+
+export async function removeStreamerFromCategory(categoryId: string, streamerId: string, userId: string) {
+  const category = await findStreamerCategoryById(parseInt(categoryId));
+
+  if (!category || category.user_id !== userId) {
+    throw new Error('Category not found or unauthorized');
+  }
+
+  await deleteStreamerFromCategoryRelation(parseInt(categoryId), streamerId);
 }

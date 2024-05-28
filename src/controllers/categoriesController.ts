@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { createCategory, getAllCategories, addStreamerToCategory, getStreamersByCategory, deleteCategory, shareCategory } from '../services/categoryService';
+import { createCategory, getAllCategories, addStreamerToCategory, getStreamersByCategory, deleteCategory, shareCategory, removeStreamerFromCategory } from '../services/categoryService';
 
 
 export const createCategoryHandler = async (req: Request, res: Response) => {
@@ -107,5 +107,23 @@ export const shareCategoryHandler = async (req: Request, res: Response) => {
   } catch (error) {
     console.error('Error updating category share status:', error);
     res.status(500).json({ error: 'Internal server error', message: 'An error occurred while updating the category share status.' });
+  }
+};
+
+export const removeStreamerFromCategoryHandler = async (req: Request, res: Response) => {
+  const { category_id, streamer_id } = req.params;
+
+  if (!req.user) {
+    return res.status(401).json({ error: 'Unauthorized' });
+  }
+
+  const userId = req.user.userId;
+
+  try {
+    await removeStreamerFromCategory(category_id, streamer_id, userId);
+    res.status(204).send();
+  } catch (error) {
+    console.error('Error removing streamer from category:', error);
+    res.status(500).json({ error: 'Internal server error', message: 'An error occurred while removing the streamer from the category.' });
   }
 };
