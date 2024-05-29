@@ -1,5 +1,7 @@
 import { Request, Response } from 'express';
-import { createPlaylist, getAllPlaylists, addStreamToPlaylist, getStreamsFromPlaylist } from '../services/playlistService';
+import { createPlaylist, getAllPlaylists,
+  addStreamToPlaylist, getStreamsFromPlaylist,
+  deletePlaylist, updatePlaylistShare } from '../services/playlistService';
 
 export const createPlaylistHandler = async (req: Request, res: Response) => {
   const { playlist_title } = req.body;
@@ -69,5 +71,42 @@ export const getStreamsFromPlaylistHandler = async (req: Request, res: Response)
   } catch (error) {
     console.error('Error fetching streams from playlist:', error);
     res.status(500).json({ error: 'Internal server error', message: 'An error occurred while fetching the streams from the playlist.' });
+  }
+};
+
+export const deletePlaylistHandler = async (req: Request, res: Response) => {
+  const { playlist_id } = req.params;
+
+  if (!req.user) {
+    return res.status(401).json({ error: 'Unauthorized' });
+  }
+
+  const userId = req.user.userId;
+
+  try {
+    await deletePlaylist(playlist_id, userId);
+    res.status(204).send();
+  } catch (error) {
+    console.error('Error deleting playlist:', error);
+    res.status(500).json({ error: 'Internal server error', message: 'An error occurred while deleting the playlist.' });
+  }
+};
+
+export const updatePlaylistShareHandler = async (req: Request, res: Response) => {
+  const { playlist_id } = req.params;
+  const { share } = req.body;
+
+  if (!req.user) {
+    return res.status(401).json({ error: 'Unauthorized' });
+  }
+
+  const userId = req.user.userId;
+
+  try {
+    await updatePlaylistShare(playlist_id, userId, share);
+    res.status(200).json({ message: 'Playlist share status updated successfully' });
+  } catch (error) {
+    console.error('Error updating playlist share status:', error);
+    res.status(500).json({ error: 'Internal server error', message: 'An error occurred while updating the playlist share status.' });
   }
 };
