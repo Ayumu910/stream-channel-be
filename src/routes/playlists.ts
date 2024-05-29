@@ -1,7 +1,8 @@
 import express from 'express';
 import { createPlaylistHandler, getAllPlaylistsHandler,
     addStreamToPlaylistHandler,getStreamsFromPlaylistHandler,
-    deletePlaylistHandler, updatePlaylistShareHandler } from '../controllers/playlistsController';
+    deletePlaylistHandler, updatePlaylistShareHandler,
+    removeStreamFromPlaylistHandler } from '../controllers/playlistsController';
 
 import { authenticateToken } from '../middlewares/authMiddleware';
 
@@ -13,5 +14,6 @@ router.post('/playlists/:playlist_id', authenticateToken, addStreamToPlaylistHan
 router.get('/playlists/:playlist_id', authenticateToken, getStreamsFromPlaylistHandler);
 router.delete('/playlists/:playlist_id', authenticateToken, deletePlaylistHandler);
 router.put('/playlists/:playlist_id/share', authenticateToken, updatePlaylistShareHandler);
+router.delete('/playlists/:playlist_id/streams/:stream_id', authenticateToken, removeStreamFromPlaylistHandler);
 
 export default router;

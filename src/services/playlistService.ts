@@ -1,6 +1,6 @@
 import { createPlaylistRecord, findAllPlaylistsByUserId, findPlaylistById,
   createStreamPlaylistRelation, findStreamsByPlaylistId,
-  deletePlaylistRecord, updatePlaylistShareRecord } from '../repositories/playlistRepository';
+  deletePlaylistRecord, updatePlaylistShareRecord, removeStreamFromPlaylistRecord } from '../repositories/playlistRepository';
 
 import { findStreamById, createStream } from '../repositories/streamRepository';
 import { findStreamerById, createStreamer } from '../repositories/streamerRepository';
@@ -141,4 +141,14 @@ export async function updatePlaylistShare(playlistId: string, userId: string, sh
   }
 
   await updatePlaylistShareRecord(parseInt(playlistId), share);
+}
+
+export async function removeStreamFromPlaylist(playlistId: string, streamId: string, userId: string) {
+  const playlist = await findPlaylistById(parseInt(playlistId));
+
+  if (!playlist || playlist.user_id !== userId) {
+    throw new Error('Playlist not found or unauthorized');
+  }
+
+  await removeStreamFromPlaylistRecord(parseInt(playlistId), streamId);
 }
