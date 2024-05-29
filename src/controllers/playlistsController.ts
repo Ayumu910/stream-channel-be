@@ -1,7 +1,8 @@
 import { Request, Response } from 'express';
 import { createPlaylist, getAllPlaylists,
   addStreamToPlaylist, getStreamsFromPlaylist,
-  deletePlaylist, updatePlaylistShare } from '../services/playlistService';
+  deletePlaylist, updatePlaylistShare,
+  removeStreamFromPlaylist } from '../services/playlistService';
 
 export const createPlaylistHandler = async (req: Request, res: Response) => {
   const { playlist_title } = req.body;
@@ -108,5 +109,23 @@ export const updatePlaylistShareHandler = async (req: Request, res: Response) =>
   } catch (error) {
     console.error('Error updating playlist share status:', error);
     res.status(500).json({ error: 'Internal server error', message: 'An error occurred while updating the playlist share status.' });
+  }
+};
+
+export const removeStreamFromPlaylistHandler = async (req: Request, res: Response) => {
+  const { playlist_id, stream_id } = req.params;
+
+  if (!req.user) {
+    return res.status(401).json({ error: 'Unauthorized' });
+  }
+
+  const userId = req.user.userId;
+
+  try {
+    await removeStreamFromPlaylist(playlist_id, stream_id, userId);
+    res.status(204).send();
+  } catch (error) {
+    console.error('Error removing stream from playlist:', error);
+    res.status(500).json({ error: 'Internal server error', message: 'An error occurred while removing the stream from the playlist.' });
   }
 };

@@ -87,3 +87,12 @@ export async function updatePlaylistShareRecord(playlistId: number, share: boole
     },
   });
 }
+
+export async function removeStreamFromPlaylistRecord(playlistId: number, streamId: string) {
+  await prisma.streamPlaylistRelation.deleteMany({
+    where: {
+      playlist_id: playlistId,
+      stream_id: streamId,
+    },
+  });
+}
