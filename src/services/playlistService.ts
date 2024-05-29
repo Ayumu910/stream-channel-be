@@ -1,4 +1,7 @@
-import { createPlaylistRecord, findAllPlaylistsByUserId, findPlaylistById, createStreamPlaylistRelation, findStreamsByPlaylistId } from '../repositories/playlistRepository';
+import { createPlaylistRecord, findAllPlaylistsByUserId, findPlaylistById,
+  createStreamPlaylistRelation, findStreamsByPlaylistId,
+  deletePlaylistRecord, updatePlaylistShareRecord } from '../repositories/playlistRepository';
+
 import { findStreamById, createStream } from '../repositories/streamRepository';
 import { findStreamerById, createStreamer } from '../repositories/streamerRepository';
 import { getYoutubeStreamDataOnly, getYoutubeStreamerDataOnly, getYoutubeStreamIdFromUrl, getYoutubeStreamDetail } from '../api/youtubeApi';
@@ -118,4 +121,24 @@ export async function getStreamsFromPlaylist(playlistId: string, userId: string)
     playlist_name: playlist.playlist_title,
     streams: streamsWithDetails,
   };
+}
+
+export async function deletePlaylist(playlistId: string, userId: string) {
+  const playlist = await findPlaylistById(parseInt(playlistId));
+
+  if (!playlist || playlist.user_id !== userId) {
+    throw new Error('Playlist not found or unauthorized');
+  }
+
+  await deletePlaylistRecord(parseInt(playlistId));
+}
+
+export async function updatePlaylistShare(playlistId: string, userId: string, share: boolean) {
+  const playlist = await findPlaylistById(parseInt(playlistId));
+
+  if (!playlist || playlist.user_id !== userId) {
+    throw new Error('Playlist not found or unauthorized');
+  }
+
+  await updatePlaylistShareRecord(parseInt(playlistId), share);
 }

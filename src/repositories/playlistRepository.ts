@@ -62,3 +62,28 @@ export async function findStreamsByPlaylistId(playlistId: number) {
       },
   });
 }
+
+export async function deletePlaylistRecord(playlistId: number) {
+  await prisma.streamPlaylistRelation.deleteMany({
+    where: {
+      playlist_id: playlistId,
+    },
+  });
+
+  await prisma.playlist.delete({
+    where: {
+      playlist_id: playlistId,
+    },
+  });
+}
+
+export async function updatePlaylistShareRecord(playlistId: number, share: boolean) {
+  await prisma.playlist.update({
+    where: {
+      playlist_id: playlistId,
+    },
+    data: {
+      shared: share,
+    },
+  });
+}
