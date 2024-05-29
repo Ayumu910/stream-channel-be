@@ -6,6 +6,7 @@ import authRoutes from './routes/auth';
 import streamsRoutes from './routes/streams';
 import streamersRoutes from './routes/streamers'
 import categoriesRoutes from './routes/categories'
+import playlistsRoutes from './routes/playlists'
 
 
 const app = express();
@@ -20,6 +21,7 @@ app.use('/api', authRoutes);
 app.use('/api', streamsRoutes);
 app.use('/api', streamersRoutes);
 app.use('/api', categoriesRoutes);
+app.use('/api', playlistsRoutes);
 
 // サーバーの起動
 const port = process.env.PORT || 3000;

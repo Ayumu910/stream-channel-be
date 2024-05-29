@@ -654,7 +654,7 @@ paths:
             schema:
               type: object
               properties:
-                title:
+                playlist_title:
                   type: string
                   description: プレイリストのタイトル
       responses:
@@ -970,10 +970,10 @@ components:
             items:
               type: object
               properties:
-                id:
+                platlist_id:
                   type: string
                   description: プレイリストのID
-                name:
+                playlist_name:
                   type: string
                   description: プレイリストの名前
 
@@ -991,7 +991,7 @@ components:
             items:
               type: object
               properties:
-                id:
+                stream_id:
                   type: string
                   description: 配信のID
                 url:

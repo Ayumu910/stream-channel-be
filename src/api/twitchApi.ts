@@ -133,3 +133,11 @@ export async function getTwitchStreamerIdFromUrl(url: string): Promise<string> {
 
   return data.data[0].id;
 }
+
+export async function getTwitchStreamIdFromUrl(url: string): Promise<string> {
+  const match = url.match(/twitch\.tv\/videos\/(\d+)/);
+  if (!match) {
+    throw new Error('Invalid Twitch stream URL');
+  }
+  return match[1];
+}

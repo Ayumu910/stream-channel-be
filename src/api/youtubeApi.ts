@@ -151,3 +151,11 @@ export async function getYoutubeStreamerIdFromUrl(url: string): Promise<string> 
 
   throw new Error('Invalid YouTube streamer URL');
 }
+
+export async function getYoutubeStreamIdFromUrl(url: string): Promise<string> {
+  const match = url.match(/youtube\.com\/watch\?v=([^&]+)/);
+  if (!match) {
+    throw new Error('Invalid YouTube stream URL');
+  }
+  return match[1];
+}
