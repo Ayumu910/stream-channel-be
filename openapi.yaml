@@ -926,6 +926,13 @@ components:
                   category_id:
                     type: string
                     description: カテゴリのID
+                  streamer_icons:
+                    type: array
+                    items:
+                      type: string
+                      format: uri
+                      example: [uri1, uri2, uri5]
+                      description: プレイリストに追加されている配信者のアイコンを5つ
                   category_name:
                     type: string
                     description: カテゴリの名前

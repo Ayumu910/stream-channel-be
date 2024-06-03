@@ -83,3 +83,13 @@ export async function deleteStreamerFromCategoryRelation(categoryId: number, str
     },
   });
 }
+
+export async function findRandomCategories(limit: number) {
+  const randomCategories = await prisma.$queryRaw`
+    SELECT * FROM "StreamerCategory"
+    WHERE "shared" = true
+    ORDER BY RANDOM()
+    LIMIT ${limit}
+  `;
+  return randomCategories;
+}
