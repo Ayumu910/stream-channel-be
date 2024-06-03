@@ -1,10 +1,10 @@
 import { createStreamerCategory, findAllStreamerCategoriesByUserId, addStreamerToCategoryRelation,
         findStreamerCategoryById, findStreamersByCategoryId, deleteStreamerCategory, updateStreamerCategory,
-        deleteStreamerFromCategoryRelation } from '../repositories/categoryRepository';
+        deleteStreamerFromCategoryRelation, findRandomCategories } from '../repositories/categoryRepository';
 
 import { findStreamerById, createStreamer } from '../repositories/streamerRepository';
-import { getYoutubeStreamerDataOnly, getYoutubeStreamerDetail, getYoutubeStreamerIdFromUrl } from '../api/youtubeApi';
-import { getTwitchStreamerDataOnly, getTwitchStreamerDetail, getTwitchStreamerIdFromUrl } from '../api/twitchApi';
+import { getYoutubeStreamerDataOnly, getYoutubeStreamerDetail, getYoutubeStreamerIdFromUrl, getYoutubeStreamerIconOnly } from '../api/youtubeApi';
+import { getTwitchStreamerDataOnly, getTwitchStreamerDetail, getTwitchStreamerIdFromUrl, getTwitchStreamerIconOnly } from '../api/twitchApi';
 
 export async function createCategory(title: string, userId: string) {
   return await createStreamerCategory(title, userId);
@@ -133,4 +133,32 @@ export async function removeStreamerFromCategory(categoryId: string, streamerId:
   }
 
   await deleteStreamerFromCategoryRelation(parseInt(categoryId), streamerId);
+}
+
+export async function getRecommendedCategories() {
+  const categories: any = await findRandomCategories(4);
+
+  const categoriesWithIcons = await Promise.all(categories.map(async (category: any) => {
+    const streamers = await findStreamersByCategoryId(category.category_id);
+    const streamerIcons = await Promise.all(streamers.slice(0, 5).map(async (streamer) => {
+      return await getStreamerIcon(streamer.streamer_id, streamer.platform);
+    }));
+
+    return {
+      category_id: category.category_id.toString(),
+      streamer_icons: streamerIcons,
+      category_name: category.category_title,
+    };
+  }));
+
+  return categoriesWithIcons;
+}
+export async function getStreamerIcon(streamerId: string, platform: string) {
+  if (platform === 'youtube') {
+    return await getYoutubeStreamerIconOnly(streamerId);
+  } else if (platform === 'twitch') {
+    return await getTwitchStreamerIconOnly(streamerId);
+  } else {
+    throw new Error('Invalid platform');
+  }
 }

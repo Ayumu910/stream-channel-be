@@ -1,5 +1,7 @@
 import { Request, Response } from 'express';
-import { createCategory, getAllCategories, addStreamerToCategory, getStreamersByCategory, deleteCategory, shareCategory, removeStreamerFromCategory } from '../services/categoryService';
+import { createCategory, getAllCategories, addStreamerToCategory,
+  getStreamersByCategory, deleteCategory, shareCategory,
+  removeStreamerFromCategory, getRecommendedCategories } from '../services/categoryService';
 
 
 export const createCategoryHandler = async (req: Request, res: Response) => {
@@ -125,5 +127,15 @@ export const removeStreamerFromCategoryHandler = async (req: Request, res: Respo
   } catch (error) {
     console.error('Error removing streamer from category:', error);
     res.status(500).json({ error: 'Internal server error', message: 'An error occurred while removing the streamer from the category.' });
+  }
+};
+
+export const getRecommendedCategoriesHandler = async (req: Request, res: Response) => {
+  try {
+    const categories = await getRecommendedCategories();
+    res.status(200).json({ categories });
+  } catch (error) {
+    console.error('Error fetching recommended categories:', error);
+    res.status(500).json({ error: 'Internal server error', message: 'An error occurred while fetching the recommended categories.' });
   }
 };

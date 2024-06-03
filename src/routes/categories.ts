@@ -1,7 +1,7 @@
 import express from 'express';
 import { createCategoryHandler, getAllCategoriesHandler, addStreamerToCategoryHandler,
       getStreamersByCategoryHandler, deleteCategoryHandler,shareCategoryHandler,
-      removeStreamerFromCategoryHandler } from '../controllers/categoriesController';
+      removeStreamerFromCategoryHandler, getRecommendedCategoriesHandler } from '../controllers/categoriesController';
 
 import { authenticateToken } from '../middlewares/authMiddleware';
 
@@ -14,5 +14,6 @@ router.get('/categories/:category_id', authenticateToken, getStreamersByCategory
 router.delete('/categories/:category_id', authenticateToken, deleteCategoryHandler);
 router.put('/categories/:category_id/share', authenticateToken, shareCategoryHandler);
 router.delete('/categories/:category_id/streamers/:streamer_id', authenticateToken, removeStreamerFromCategoryHandler);
+router.get('/recommended-categories', getRecommendedCategoriesHandler);
 
 export default router;

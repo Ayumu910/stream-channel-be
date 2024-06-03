@@ -141,3 +141,15 @@ export async function getTwitchStreamIdFromUrl(url: string): Promise<string> {
   }
   return match[1];
 }
+
+export async function getTwitchStreamerIconOnly(streamerId: string) {
+  const headers = new Headers();
+  headers.append('Client-ID', process.env.TWITCH_CLIENT_ID!);
+  headers.append('Authorization', `Bearer ${process.env.TWITCH_ACCESS_TOKEN}`);
+
+  const response = await fetch(`https://api.twitch.tv/helix/users?id=${streamerId}`, {
+    headers: headers,
+  });
+  const data = await response.json();
+  return data.data[0].profile_image_url;
+}
