@@ -96,3 +96,15 @@ export async function removeStreamFromPlaylistRecord(playlistId: number, streamI
     },
   });
 }
+
+export async function findFirstStreamByPlaylistId(playlistId: number) {
+  return await prisma.stream.findFirst({
+    where: {
+      stream_playlist_relation: {
+        some: {
+          playlist_id: playlistId,
+        },
+      },
+    },
+  });
+}

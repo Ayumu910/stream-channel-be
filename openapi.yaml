@@ -983,6 +983,10 @@ components:
                 playlist_name:
                   type: string
                   description: プレイリストの名前
+                thumbnail_image:
+                  type: string
+                  format: uri1
+                  description: プレイリスト中の配信のサムネイルを1つ
 
       playlist_detail:
         type: object
