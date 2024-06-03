@@ -153,3 +153,15 @@ export async function getTwitchStreamerIconOnly(streamerId: string) {
   const data = await response.json();
   return data.data[0].profile_image_url;
 }
+
+export async function getTwitchStreamThumbnailOnly(streamId: string) {
+  const headers = new Headers();
+  headers.append('Client-ID', process.env.TWITCH_CLIENT_ID!);
+  headers.append('Authorization', `Bearer ${process.env.TWITCH_ACCESS_TOKEN}`);
+
+  const response = await fetch(`https://api.twitch.tv/helix/videos?id=${streamId}`, {
+    headers: headers,
+  });
+  const data = await response.json();
+  return data.data[0].thumbnail_url.replace('%{width}', '320').replace('%{height}', '180');
+}

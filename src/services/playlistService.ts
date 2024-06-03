@@ -1,18 +1,41 @@
 import { createPlaylistRecord, findAllPlaylistsByUserId, findPlaylistById,
-  createStreamPlaylistRelation, findStreamsByPlaylistId,
+  createStreamPlaylistRelation, findStreamsByPlaylistId, findFirstStreamByPlaylistId,
   deletePlaylistRecord, updatePlaylistShareRecord, removeStreamFromPlaylistRecord } from '../repositories/playlistRepository';
 
 import { findStreamById, createStream } from '../repositories/streamRepository';
 import { findStreamerById, createStreamer } from '../repositories/streamerRepository';
-import { getYoutubeStreamDataOnly, getYoutubeStreamerDataOnly, getYoutubeStreamIdFromUrl, getYoutubeStreamDetail } from '../api/youtubeApi';
-import { getTwitchStreamDataOnly, getTwitchStreamerDataOnly, getTwitchStreamIdFromUrl , getTwitchStreamDetail} from '../api/twitchApi';
+import { getYoutubeStreamDataOnly, getYoutubeStreamerDataOnly, getYoutubeStreamIdFromUrl, getYoutubeStreamDetail, getYoutubeStreamThumbnailOnly } from '../api/youtubeApi';
+import { getTwitchStreamDataOnly, getTwitchStreamerDataOnly, getTwitchStreamIdFromUrl , getTwitchStreamDetail, getTwitchStreamThumbnailOnly} from '../api/twitchApi';
 
 export async function createPlaylist(title: string, userId: string) {
   return await createPlaylistRecord(title, userId);
 }
 
 export async function getAllPlaylists(userId: string) {
-  return await findAllPlaylistsByUserId(userId);
+  //ユーザーのすべてのプレイリストを取得
+  const playlists = await findAllPlaylistsByUserId(userId);
+
+  //プレイリスト中の最初の配信のサムネイルを取得
+  const playlistsWithThumbnail = await Promise.all(playlists.map(async (playlist) => {
+    const stream = await findFirstStreamByPlaylistId(playlist.playlist_id);
+    let thumbnail = null;
+
+    if (stream) {
+      if (stream.platform === 'youtube') {
+        thumbnail = await getYoutubeStreamThumbnailOnly(stream.stream_id);
+      } else if (stream.platform === 'twitch') {
+        thumbnail = await getTwitchStreamThumbnailOnly(stream.stream_id);
+      }
+    }
+
+    return {
+      playlist_id: playlist.playlist_id,
+      playlist_title: playlist.playlist_title,
+      thumbnail: thumbnail,
+    };
+  }));
+
+  return playlistsWithThumbnail;
 }
 
 export async function addStreamToPlaylist(playlistId: string, streamUrl: string, userId: string) {
