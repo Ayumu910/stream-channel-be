@@ -1,6 +1,7 @@
 import { createPlaylistRecord, findAllPlaylistsByUserId, findPlaylistById,
   createStreamPlaylistRelation, findStreamsByPlaylistId, findFirstStreamByPlaylistId,
-  deletePlaylistRecord, updatePlaylistShareRecord, removeStreamFromPlaylistRecord } from '../repositories/playlistRepository';
+  deletePlaylistRecord, updatePlaylistShareRecord, removeStreamFromPlaylistRecord,
+  findRandomPlaylists } from '../repositories/playlistRepository';
 
 import { findStreamById, createStream } from '../repositories/streamRepository';
 import { findStreamerById, createStreamer } from '../repositories/streamerRepository';
@@ -174,4 +175,31 @@ export async function removeStreamFromPlaylist(playlistId: string, streamId: str
   }
 
   await removeStreamFromPlaylistRecord(parseInt(playlistId), streamId);
+}
+
+export async function getRecommendedPlaylists() {
+  //プレイリストを取得
+  const playlists :any = await findRandomPlaylists(6);
+
+  //プレイリスト中の最初の配信のサムネイルを取得
+  const playlistsWithThumbnail = await Promise.all(playlists.map(async (playlist :any) => {
+    const stream = await findFirstStreamByPlaylistId(playlist.playlist_id);
+    let thumbnail = null;
+
+    if (stream) {
+      if (stream.platform === 'youtube') {
+        thumbnail = await getYoutubeStreamThumbnailOnly(stream.stream_id);
+      } else if (stream.platform === 'twitch') {
+        thumbnail = await getTwitchStreamThumbnailOnly(stream.stream_id);
+      }
+    }
+
+    return {
+      playlist_id: playlist.playlist_id,
+      playlist_name: playlist.playlist_title,
+      thumbnail: thumbnail,
+    };
+  }));
+
+  return playlistsWithThumbnail;
 }

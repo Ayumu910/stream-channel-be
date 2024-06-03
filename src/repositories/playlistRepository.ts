@@ -108,3 +108,13 @@ export async function findFirstStreamByPlaylistId(playlistId: number) {
     },
   });
 }
+
+export async function findRandomPlaylists(limit: number) {
+  const randomPlaylists = await prisma.$queryRaw`
+    SELECT * FROM "Playlist"
+    WHERE "shared" = true
+    ORDER BY RANDOM()
+    LIMIT ${limit}
+  `;
+  return randomPlaylists;
+}
