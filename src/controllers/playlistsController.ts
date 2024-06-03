@@ -2,7 +2,7 @@ import { Request, Response } from 'express';
 import { createPlaylist, getAllPlaylists,
   addStreamToPlaylist, getStreamsFromPlaylist,
   deletePlaylist, updatePlaylistShare,
-  removeStreamFromPlaylist } from '../services/playlistService';
+  removeStreamFromPlaylist, getRecommendedPlaylists } from '../services/playlistService';
 
 export const createPlaylistHandler = async (req: Request, res: Response) => {
   const { playlist_title } = req.body;
@@ -127,5 +127,15 @@ export const removeStreamFromPlaylistHandler = async (req: Request, res: Respons
   } catch (error) {
     console.error('Error removing stream from playlist:', error);
     res.status(500).json({ error: 'Internal server error', message: 'An error occurred while removing the stream from the playlist.' });
+  }
+};
+
+export const getRecommendedPlaylistsHandler = async (req: Request, res: Response) => {
+  try {
+    const playlists = await getRecommendedPlaylists();
+    res.status(200).json({ playlists });
+  } catch (error) {
+    console.error('Error fetching recommended playlists:', error);
+    res.status(500).json({ error: 'Internal server error', message: 'An error occurred while fetching the recommended playlists.' });
   }
 };
