@@ -34,7 +34,7 @@ export async function getStreamDetail(streamId: string, platforms: string) {
     id: streamData.id,
     url: platforms === 'youtube' ? `https://www.youtube.com/watch?v=${streamData.id}` : `https://www.twitch.tv/videos/${streamData.id}`,
     title: platforms === 'youtube' ? streamData.snippet.title : streamData.title,
-    views: platforms === 'youtube' ? streamData.statistics.viewCount : streamData.view_count,
+    views: platforms === 'youtube' ? streamData.statistics.viewCount : streamData.view_count + "",
     streamer: {
       id: platforms === 'youtube' ? streamData.snippet.channelId : streamData.user_id,
       name: platforms === 'youtube' ? streamData.snippet.channelTitle : streamData.user_name,

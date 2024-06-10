@@ -26,7 +26,7 @@ export async function getStreamerDetail(streamerId: string, platform: string) {
     streams: streamerData.streams.map((stream: any) => ({
       id: stream.id,
       title: stream.title,
-      views: platform === 'youtube' ? stream.viewCount : stream.view_count,
+      views: platform === 'youtube' ? stream.viewCount : stream.view_count + "" ,
       platform: platform,
       thumbnail_image: platform === 'youtube' ? stream.thumbnails.medium.url : stream.thumbnail_url.replace('%{width}', '320').replace('%{height}', '180')
     })),

@@ -126,7 +126,7 @@ export async function getStreamsFromPlaylist(playlistId: string, userId: string)
 
     const views = platform === 'youtube'
       ? streamDetail.streamData.statistics.viewCount
-      : streamDetail.streamData.view_count;
+      : streamDetail.streamData.view_count + "";
 
     return {
       stream_id: stream.stream_id,
