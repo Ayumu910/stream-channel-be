@@ -93,7 +93,7 @@ export async function addStreamToPlaylist(playlistId: string, streamUrl: string,
   await createStreamPlaylistRelation(parseInt(playlistId), stream.stream_id);
 }
 
-export async function getStreamsFromPlaylist(playlistId: string, userId: string | undefined) {
+export async function getStreamsFromPlaylist(playlistId: string, userId: string) {
   //プレイリストを取得
   const playlist = await findPlaylistById(parseInt(playlistId));
 
