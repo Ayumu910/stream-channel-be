@@ -58,13 +58,18 @@ export async function addStreamerToCategory(categoryId: string, streamerUrl: str
   return await addStreamerToCategoryRelation(parseInt(categoryId), streamer.streamer_id);
 }
 
-export async function getStreamersByCategory(categoryId: string, userId: string) {
+export async function getStreamersByCategory(categoryId: string, userId: string ) {
   //カテゴリを取得
   const category = await findStreamerCategoryById(parseInt(categoryId));
 
-  //カテゴリがユーザー本人のものか検証
-  if (!category || category.user_id !== userId) {
-    throw new Error('Category not found or unauthorized');
+  //カテゴリが存在するか確認
+  if (!category) {
+    throw new Error('Category not found');
+  }
+
+   // カテゴリが共有されているか、あるいはユーザー本人のものかを確認
+   if (!category.shared && category.user_id !== userId) {
+    throw new Error('Unauthorized');
   }
 
   //カテゴリ中の配信者を取得

@@ -93,12 +93,18 @@ export async function addStreamToPlaylist(playlistId: string, streamUrl: string,
   await createStreamPlaylistRelation(parseInt(playlistId), stream.stream_id);
 }
 
-export async function getStreamsFromPlaylist(playlistId: string, userId: string) {
+export async function getStreamsFromPlaylist(playlistId: string, userId: string | undefined) {
   //プレイリストを取得
   const playlist = await findPlaylistById(parseInt(playlistId));
 
-  if (!playlist || playlist.user_id !== userId) {
-    throw new Error('Playlist not found or unauthorized');
+  //プレイリストが存在するか確認
+  if (!playlist) {
+    throw new Error('Category not found');
+  }
+
+  //プレイリストが共有されているか、あるいはユーザー本人のものかを確認
+  if (!playlist.shared && playlist.user_id !== userId) {
+    throw new Error('Unauthorized');
   }
 
   //プレイリスト中の配信一覧を取得
