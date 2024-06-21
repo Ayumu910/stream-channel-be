@@ -286,7 +286,27 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/streamer_categories_rough'
+                type: object
+                properties:
+                  categories:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        category_id:
+                          type: integer
+                          example: 1
+                        category_title:
+                          type: string
+                          example: "New Category"
+                        shared:
+                          type: boolean
+                          example: false
+                        user_id:
+                          type: string
+                          format: uuid
+                          example: "ajhu80jy-54b6-4835-09ki-5a7kko4f2b3f"
+
         '404':
           description: 指定されたユーザーが見つかりません
         '500':
