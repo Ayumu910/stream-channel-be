@@ -77,30 +77,52 @@ export async function getStreamersByCategory(categoryId: string, userId: string 
 
   //配信者の詳細情報を取得
   const streamersWithDetails = await Promise.all(streamers.map(async (streamer) => {
-    const platform = streamer.platform;
-    let streamer_detail;
-    let streamer_icon;
-    let most_recent_stream_thumbnail;
+    try {
+      const platform = streamer.platform;
+      let streamer_detail;
+      let streamer_icon;
+      let most_recent_stream_thumbnail;
 
-    if (platform === 'youtube') {
-      streamer_detail = await getYoutubeStreamerDetail(streamer.streamer_id);
-      streamer_icon = streamer_detail.streamerIconUrl;
-      most_recent_stream_thumbnail = streamer_detail.streams[0].thumbnails.high.url;
-    } else if (platform === 'twitch') {
-      streamer_detail = await getTwitchStreamerDetail(streamer.streamer_id);
-      streamer_icon = streamer_detail.streamerIconUrl;
-      most_recent_stream_thumbnail = streamer_detail.streams[0].thumbnail_url.replace('%{width}', 480).replace('%{height}', 360);
-    } else {
-      throw new Error('Invalid platform');
-    }
+      if (platform === 'youtube') {
+        streamer_detail = await getYoutubeStreamerDetail(streamer.streamer_id);
+        streamer_icon = streamer_detail.streamerIconUrl;
+        most_recent_stream_thumbnail = streamer_detail.streams.length > 0
+          ? streamer_detail.streams[0].thumbnails.high.url
+          : process.env.DEFAULT_THUMBNAIL;
+      } else if (platform === 'twitch') {
+        streamer_detail = await getTwitchStreamerDetail(streamer.streamer_id);
+        streamer_icon = streamer_detail.streamerIconUrl;
 
-    return {
-      id: streamer.streamer_id,
-      name: streamer.name,
-      platform: streamer.platform,
-      streamer_icon: streamer_icon,
-      most_recent_stream_thumbnail: most_recent_stream_thumbnail
-    };
+        //https://vod-secure.twitch.tv/_404/404_processing_480x360.png という形式のサムネイル URL を除外する
+        most_recent_stream_thumbnail = process.env.DEFAULT_THUMBNAIL;
+        for (let stream of streamer_detail.streams) {
+          if (stream.thumbnail_url && !stream.thumbnail_url.includes('404_processing')) {
+            most_recent_stream_thumbnail = stream.thumbnail_url.replace('%{width}', '480').replace('%{height}', '360');
+            break;
+          }
+        }
+      } else {
+        throw new Error('Invalid platform');
+      }
+
+      return {
+        id: streamer.streamer_id,
+        name: streamer.name,
+        platform: streamer.platform,
+        streamer_icon: streamer_icon,
+        most_recent_stream_thumbnail: most_recent_stream_thumbnail
+      };
+    } catch(error) {
+        //配信者の詳細情報を取得する際にエラーが発生しても、カテゴリの取得を中断しない
+        console.error(`配信者 ${streamer.streamer_id} の詳細取得中にエラーが発生しました:`, error);
+        return {
+          id: streamer.streamer_id,
+          name: streamer.name,
+          platform: streamer.platform,
+          streamer_icon: process.env.DEFAULT_THUMBNAIL,
+          most_recent_stream_thumbnail: process.env.DEFAULT_THUMBNAIL
+        };
+      }
   }));
 
   return {
@@ -146,7 +168,14 @@ export async function getRecommendedCategories() {
   const categoriesWithIcons = await Promise.all(categories.map(async (category: any) => {
     const streamers = await findStreamersByCategoryId(category.category_id);
     const streamerIcons = await Promise.all(streamers.slice(0, 5).map(async (streamer) => {
-      return await getStreamerIcon(streamer.streamer_id, streamer.platform);
+      try {
+        return await getStreamerIcon(streamer.streamer_id, streamer.platform);
+      } catch (error) {
+        //取得に失敗した場合は、デフォルトの画像 url を返す
+        console.error(`Error fetching icon for streamer ${streamer.streamer_id}:`, error);
+        return process.env.DEFAULT_THUMBNAIL;
+      }
+
     }));
 
     return {
@@ -159,11 +188,17 @@ export async function getRecommendedCategories() {
   return categoriesWithIcons;
 }
 export async function getStreamerIcon(streamerId: string, platform: string) {
-  if (platform === 'youtube') {
-    return await getYoutubeStreamerIconOnly(streamerId);
-  } else if (platform === 'twitch') {
-    return await getTwitchStreamerIconOnly(streamerId);
-  } else {
-    throw new Error('Invalid platform');
+  try {
+    if (platform === 'youtube') {
+      return await getYoutubeStreamerIconOnly(streamerId);
+    } else if (platform === 'twitch') {
+      return await getTwitchStreamerIconOnly(streamerId);
+    } else {
+      throw new Error('Invalid platform');
+    }
+  } catch (error) {
+    //取得に失敗した場合は、デフォルトの画像 url を返す
+    console.error(`Error fetching icon for streamer ${streamerId}:`, error);
+    return process.env.DEFAULT_THUMBNAIL;
   }
 }

@@ -6,34 +6,49 @@ import { getTwitchStreamerDetail, getTwitchStreamerDataOnly, getTwitchStreamerBa
 
 export async function getStreamerDetail(streamerId: string, platform: string) {
   let streamerData : any;
-  let streamerIconUrl = '';
+  let streamerIconUrl = process.env.DEFAULT_THUMBNAIL;
 
-  if (platform === 'youtube') {
-    streamerData = await getYoutubeStreamerDetail(streamerId);
-    streamerIconUrl = streamerData.streamerIconUrl;
-  } else if (platform === 'twitch') {
-    streamerData = await getTwitchStreamerDetail(streamerId);
-    streamerIconUrl = streamerData.streamerIconUrl;
-  } else {
-    throw new Error('Invalid platform');
-  }
+  try {
+    if (platform === 'youtube') {
+      streamerData = await getYoutubeStreamerDetail(streamerId);
+      streamerIconUrl = streamerData.streamerIconUrl;
+    } else if (platform === 'twitch') {
+      streamerData = await getTwitchStreamerDetail(streamerId);
+      streamerIconUrl = streamerData.streamerIconUrl;
+    } else {
+      throw new Error('Invalid platform');
+    }
 
-  const streamerDetail = {
-    id: streamerData.id,
-    name: streamerData.name,
-    url: platform === 'youtube' ? `https://www.youtube.com/channel/${streamerData.id}` : `https://www.twitch.tv/${streamerData.login}`,
-    platform: platform,
-    streams: streamerData.streams.map((stream: any) => ({
-      id: stream.id,
-      title: stream.title,
-      views: platform === 'youtube' ? stream.viewCount : stream.view_count + "" ,
+    const streamerDetail = {
+      id: streamerData.id,
+      name: streamerData.name,
+      url: platform === 'youtube' ? `https://www.youtube.com/channel/${streamerData.id}` : `https://www.twitch.tv/${streamerData.login}`,
       platform: platform,
-      thumbnail_image: platform === 'youtube' ? stream.thumbnails.medium.url : stream.thumbnail_url.replace('%{width}', '320').replace('%{height}', '180')
-    })),
-    streamer_icon: streamerIconUrl
-  };
+      streams: streamerData.streams.map((stream: any) => ({
+        id: stream.id,
+        title: stream.title,
+        views: platform === 'youtube' ? (stream.viewCount || '0') : ((stream.view_count || 0) + ""),
+        platform: platform,
+        thumbnail_image: platform === 'youtube'
+          ? (stream.thumbnails?.medium?.url || 'デフォルトのサムネイルURL')
+          : (stream.thumbnail_url ? stream.thumbnail_url.replace('%{width}', '320').replace('%{height}', '180') : process.env.DEFAULT_THUMBNAIL)
+      })),
+      streamer_icon: streamerIconUrl
+    };
 
-  return streamerDetail;
+    return streamerDetail;
+  } catch (error) {
+    //配信者情報の取得に失敗した場合、ダミーデータを返す
+    console.error(`Error fetching details for streamer ${streamerId}:`, error);
+    return {
+      id: streamerId,
+      name: 'Unknown Streamer',
+      url: '#',
+      platform: platform,
+      streams: [],
+      streamer_icon: process.env.DEFAULT_THUMBNAIL
+    };
+  }
 }
 
 export async function getStreamerComments(streamerId: string) {
