@@ -112,38 +112,50 @@ export async function getStreamsFromPlaylist(playlistId: string, userId: string)
 
   //取得した配信のそれぞれについて、レスポンスデータを生成
   const streamsWithDetails = await Promise.all(streams.map(async (stream ) => {
-    const platform = stream.platform;
-    let streamDetail :any;
-    let tags = [];
+    try {
+      const platform = stream.platform;
+      let streamDetail: any;
+      let tags = [];
+      let thumbnailImage = 'デフォルトのサムネイルURL';
+      let views = '0';
 
-    if (platform === 'youtube') {
-      streamDetail = await getYoutubeStreamDetail(stream.stream_id);
-      tags = streamDetail.streamData.snippet.tags || [];
-    } else if (platform === 'twitch') {
-      streamDetail = await getTwitchStreamDetail(stream.stream_id);
-      tags = [];
-    } else {
-      throw new Error('Invalid platform');
+      if (platform === 'youtube') {
+        streamDetail = await getYoutubeStreamDetail(stream.stream_id);
+        tags = streamDetail.streamData.snippet.tags || [];
+        thumbnailImage = streamDetail.streamData.snippet.thumbnails?.standard?.url || process.env.DEFAULT_THUMBNAIL;
+        views = streamDetail.streamData.statistics.viewCount || '0';
+      } else if (platform === 'twitch') {
+        streamDetail = await getTwitchStreamDetail(stream.stream_id);
+        thumbnailImage = streamDetail.thumbnailImage || process.env.DEFAULT_THUMBNAIL;
+        views = (streamDetail.streamData.view_count || 0).toString();
+      } else {
+        throw new Error('Invalid platform');
+      }
+
+      return {
+        stream_id: stream.stream_id,
+        url: stream.url,
+        title: stream.stream_title,
+        views: views,
+        tags: tags,
+        platform: stream.platform,
+        thumbnail_image: thumbnailImage,
+        addedAt: stream.stream_playlist_relation[0].added_at,
+      };
+    } catch (error) {
+      //配信の取得に失敗した場合は、ダミーデータを返す
+      console.error(`Error fetching details for stream ${stream.stream_id}:`, error);
+      return {
+        stream_id: stream.stream_id,
+        url: '#',
+        title: 'Unknown Stream',
+        views: '0',
+        tags: [],
+        platform: stream.platform,
+        thumbnail_image: process.env.DEFAULT_THUMBNAIL,
+        addedAt: stream.stream_playlist_relation[0].added_at,
+      };
     }
-
-    const thumbnailImage = platform === 'youtube'
-      ? streamDetail.streamData.snippet.thumbnails.standard.url
-      : streamDetail.thumbnailImage;
-
-    const views = platform === 'youtube'
-      ? streamDetail.streamData.statistics.viewCount
-      : streamDetail.streamData.view_count + "";
-
-    return {
-      stream_id: stream.stream_id,
-      url: stream.url,
-      title: stream.stream_title,
-      views: views,
-      tags: tags,
-      platform: stream.platform,
-      thumbnail_image: thumbnailImage,
-      addedAt: stream.stream_playlist_relation[0].added_at,
-    };
   }));
 
   return {
@@ -190,13 +202,17 @@ export async function getRecommendedPlaylists() {
   //プレイリスト中の最初の配信のサムネイルを取得
   const playlistsWithThumbnail = await Promise.all(playlists.map(async (playlist :any) => {
     const stream = await findFirstStreamByPlaylistId(playlist.playlist_id);
-    let thumbnail = null;
+    let thumbnail = process.env.DEFAULT_THUMBNAIL;
 
     if (stream) {
-      if (stream.platform === 'youtube') {
-        thumbnail = await getYoutubeStreamThumbnailOnly(stream.stream_id);
-      } else if (stream.platform === 'twitch') {
-        thumbnail = await getTwitchStreamThumbnailOnly(stream.stream_id);
+      try {
+        if (stream.platform === 'youtube') {
+          thumbnail = await getYoutubeStreamThumbnailOnly(stream.stream_id);
+        } else if (stream.platform === 'twitch') {
+          thumbnail = await getTwitchStreamThumbnailOnly(stream.stream_id);
+        }
+      } catch (error) {
+        console.error(`Error fetching thumbnail for stream ${stream.stream_id}:`, error);
       }
     }
 
