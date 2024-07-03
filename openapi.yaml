@@ -1003,6 +1003,12 @@ components:
                 playlist_name:
                   type: string
                   description: プレイリストの名前
+                shared:
+                  type: boolean
+                  description: プレイリストの共有状態
+                user_id:
+                  type: string
+                  description: プレイリストの作成者
                 thumbnail_image:
                   type: string
                   format: uri1

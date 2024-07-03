@@ -19,7 +19,7 @@ export async function getAllPlaylists(userId: string) {
   //プレイリスト中の最初の配信のサムネイルを取得
   const playlistsWithThumbnail = await Promise.all(playlists.map(async (playlist) => {
     const stream = await findFirstStreamByPlaylistId(playlist.playlist_id);
-    let thumbnail = null;
+    let thumbnail = process.env.DEFAULT_THUMBNAIL;
 
     if (stream) {
       if (stream.platform === 'youtube') {
@@ -32,6 +32,8 @@ export async function getAllPlaylists(userId: string) {
     return {
       playlist_id: playlist.playlist_id,
       playlist_title: playlist.playlist_title,
+      shared: playlist.shared,
+      user_id: playlist.user_id,
       thumbnail: thumbnail,
     };
   }));
@@ -219,6 +221,8 @@ export async function getRecommendedPlaylists() {
     return {
       playlist_id: playlist.playlist_id,
       playlist_name: playlist.playlist_title,
+      shared: playlist.shared,
+      user_id: playlist.user_id,
       thumbnail: thumbnail,
     };
   }));
