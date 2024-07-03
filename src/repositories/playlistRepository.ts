@@ -19,11 +19,7 @@ export async function findAllPlaylistsByUserId(userId: string) {
   return await prisma.playlist.findMany({
     where: {
       user_id: userId,
-    },
-    select: {
-      playlist_id: true,
-      playlist_title: true,
-    },
+    }
   });
 }
 
