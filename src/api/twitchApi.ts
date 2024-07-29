@@ -43,7 +43,7 @@ export async function getTwitchStreamerDetail(streamerId: string) {
   headers.append('Authorization', `Bearer ${process.env.TWITCH_ACCESS_TOKEN}`);
 
   //配信者のライブ配信一覧の取得
-  const response = await fetch(`https://api.twitch.tv/helix/videos?user_id=${streamerId}&first=12`, {
+  const response = await fetch(`https://api.twitch.tv/helix/videos?user_id=${streamerId}&first=6`, {
     headers: headers
   });
   const data = await response.json();
