@@ -1,11 +1,13 @@
 // 認証関係のルーティングを行う
 import express from 'express';
+import { sanitizeInputs } from '../middlewares/xssProtection';
 import { createAccount, login, guestLogin } from '../controllers/authController';
 
 const router = express.Router();
 
-router.post('/accounts', createAccount);
-router.post('/login', login);
+//パスワードはサニタイズせず、メールアドレスのみサニタイズ
+router.post('/accounts', sanitizeInputs, createAccount);
+router.post('/login', sanitizeInputs, login);
 router.post('/guest-login', guestLogin);
 
 export default router;
