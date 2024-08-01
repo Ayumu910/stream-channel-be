@@ -2,7 +2,7 @@ FROM node:20.12
 
 RUN npm install -g typescript
 WORKDIR /stream-channel-be
-RUN npm install typescript express @types/node @types/express jest @types/jest ts-jest
+RUN npm install typescript express @types/node @types/express jest @types/jest ts-jest supertest @types/supertest
 RUN npm install bcrypt jsonwebtoken cors dotenv @types/jsonwebtoken @types/bcrypt @types/cors
 
 # ビルドコンテキストをルートに設定
