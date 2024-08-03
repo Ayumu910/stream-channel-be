@@ -16,7 +16,7 @@ RUN mkdir src __tests__
 # prisma 関係
 RUN npm install prisma
 RUN npx prisma init
-COPY schema.prisma /stream-channel-be/prisma/
-COPY .env /stream-channel-be/
+COPY prisma/schema.prisma /stream-channel-be/prisma/
+COPY prisma/migrations /stream-channel-be/prisma/migrations
 RUN npx prisma generate
 
