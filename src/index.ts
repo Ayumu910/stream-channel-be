@@ -15,7 +15,7 @@ const prisma = new PrismaClient();
 // ミドルウェアの設定
 app.use(bodyParser.json());
 
-const allowedOrigins = ['http://localhost:3000', 'https://Ayumu910.github.io'];
+const allowedOrigins = ['http://localhost:3000', 'https://ayumu910.github.io'];
 app.use(cors({
   origin: function(origin, callback) {
     if (!origin) return callback(null, true);
